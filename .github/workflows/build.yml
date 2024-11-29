@@ -33,15 +33,15 @@ jobs:
           cp .config immortalwrt/
 
       - name: 编译固件
+        id: compile
         run: |
           cd immortalwrt
           
           make -j$(nproc)
 
-      - name: 发布Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Upload bin directory
+        uses: actions/upload-artifact@master
+        if: steps.compile.outputs.status == 'success
         with:
-          files: immortalwrt/bin/target/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: OpenWrt_bin
+          path: immortalwrt/bin

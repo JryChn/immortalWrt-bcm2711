@@ -16,7 +16,7 @@ jobs:
 
       - name: 设置Ubuntu环境依赖
         run: |
-          bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
 
       - name: 克隆ImmortalWrt仓库
         run: |
@@ -35,7 +35,7 @@ jobs:
       - name: 编译固件
         run: |
           cd immortalwrt
-          make -j$(nproc)
+          make -j$(nproc) -V=s
 
       - name: 发布Release
         uses: softprops/action-gh-release@v1

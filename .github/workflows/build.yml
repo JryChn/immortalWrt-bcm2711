@@ -1,0 +1,46 @@
+name: Build ImmortalWrt
+
+on:
+  workflow_dispatch:  # 允许手动触发
+  push:
+    branches:
+      - main  # 可根据需要修改分支
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环境
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置Ubuntu环境依赖
+        run: |
+          bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+
+      - name: 克隆ImmortalWrt仓库
+        run: |
+          git clone --single-branch --filter=blob:none -b openwork-24.10 https://github.com/immortalwrt/immortalwrt
+
+      - name: 更新并安装feeds
+        run: |
+          cd immortalwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 复制配置文件
+        run: |
+          cp .config immortalwrt/
+
+      - name: 编译固件
+        run: |
+          cd immortalwrt
+          make -j$(nproc)
+
+      - name: 发布Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: immortalwrt/bin/target/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # 允许手动触发
   push:
     branches:
-      - main  # 可根据需要修改分支
+      - master  # 可根据需要修改分支
 
 jobs:
   build:

@@ -35,7 +35,8 @@ jobs:
       - name: 编译固件
         run: |
           cd immortalwrt
-          make -j$(nproc) V=s
+          
+          make -j$(nproc)
 
       - name: 发布Release
         uses: softprops/action-gh-release@v1

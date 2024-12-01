@@ -29,7 +29,7 @@ jobs:
 
       - name: 克隆ImmortalWrt仓库
         run: |
-          git clone --single-branch --filter=blob:none -b openwrt-24.10 https://github.com/immortalwrt/immortalwrt
+          git clone --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
 
       - name: 更新并安装feeds
         run: |

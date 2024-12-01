@@ -72,7 +72,6 @@ jobs:
 
       - name: 更新并安装feeds
         run: |
-        working-directory:
           cd immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a

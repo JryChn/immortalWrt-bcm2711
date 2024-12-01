@@ -65,12 +65,6 @@ jobs:
       - name: 设置Ubuntu环境依赖
         run: |
           sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-          sudo -E apt-get -qq autoremove --purge
-          sudo -E apt-get -qq clean
-          sudo rm -rf /etc/apt/sources.list.d/* /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/graalvm /usr/local/.ghcup \
-          /usr/local/share/powershell /usr/local/share/chromium /usr/local/lib/node_modules
-          sudo timedatectl set-timezone "Asia/Shanghai"
-          sudo chown $USER:$GROUPS $GITHUB_WORKSPACE
 
       - name: 克隆ImmortalWrt仓库
         run: |

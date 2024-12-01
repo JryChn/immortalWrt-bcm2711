@@ -13,14 +13,14 @@ jobs:
     steps:
 
 
-      - name: Before freeing up disk space
+      - name: 释放空间开始
         run: |
           echo "Before freeing up disk space"
           echo "=============================================================================="
           df -hT
           echo "=============================================================================="
 
-      - name: "Optimize Disk Space"
+      - name: 优化空间
         uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
         with:
           operate_sudo: "True"
@@ -41,7 +41,7 @@ jobs:
           npm_clean: "True"
           os_swap: "True"
 
-      - name: Freeing up disk space
+      - name: 整合释放空间
         uses: easimon/maximize-build-space@master
         with:
           root-reserve-mb: 2048
@@ -52,7 +52,7 @@ jobs:
           remove-codeql: 'true'
           remove-docker-images: 'true'
 
-      - name: Free up disk space complete
+      - name: 释放空间完成
         run: |
           echo "Free up disk space complete"
           echo "=============================================================================="
@@ -68,7 +68,6 @@ jobs:
 
       - name: 克隆ImmortalWrt仓库
         run: |
-        working-directory: ./
           git clone --depth=1 --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
 
       - name: 更新并安装feeds
@@ -90,20 +89,20 @@ jobs:
           make download -j$(nproc)
           make -j1
 
-      - name: Upload bin directory
+      - name: 上传固件
         uses: actions/upload-artifact@master
         with:
           name: OpenWrt_bin
           path: immortalwrt/bin
 
 
-      - name: Delete workflow runs
+      - name: 删除workflow运行
         uses: Mattraks/delete-workflow-runs@main
         with:
           retain_days: 0
           keep_minimum_runs: 2
 
-      - name: Remove old Releases
+      - name: 移除旧Release
         uses: dev-drprasad/delete-older-releases@master
         with:
           keep_latest: 3

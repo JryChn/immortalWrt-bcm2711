@@ -11,44 +11,76 @@ jobs:
     runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环境
 
     steps:
+
+
+      - name: Before freeing up disk space
+        run: |
+          echo "Before freeing up disk space"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+
+      - name: "Optimize Disk Space"
+        uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
+        with:
+          operate_sudo: "True"
+          general_include: ".+"
+          general_exclude: |-
+            ^GCC$
+            ^G\+\+$
+            Clang
+            LLVM
+          docker_include: ".+"
+          docker_prune: "True"
+          docker_clean: "True"
+          apt_prune: "True"
+          apt_clean: "True"
+          homebrew_prune: "True"
+          homebrew_clean: "True"
+          npm_prune: "True"
+          npm_clean: "True"
+          os_swap: "True"
+
+      - name: Freeing up disk space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 2048
+          swap-size-mb: 1
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
+      - name: Free up disk space complete
+        run: |
+          echo "Free up disk space complete"
+          echo "=============================================================================="
+          df -hT
+          echo "=============================================================================="
+
       - name: 检出代码
         uses: actions/checkout@v3
-
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-
-          # all of these default to true, but feel free to set to
-          # "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-
-      - name: 清理磁盘空间
-        run: |
-         sudo rm -rf /opt/ghc
-         sudo rm -rf "/usr/local/share/boost"
-         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-         sudo apt clean
-         df -h
 
       - name: 设置Ubuntu环境依赖
         run: |
           sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/local/lib/android /opt/ghc /usr/share/dotnet /usr/local/graalvm /usr/local/.ghcup \
+          /usr/local/share/powershell /usr/local/share/chromium /usr/local/lib/node_modules
+          sudo timedatectl set-timezone "Asia/Shanghai"
+          sudo chown $USER:$GROUPS $GITHUB_WORKSPACE
 
       - name: 克隆ImmortalWrt仓库
         run: |
-        working-directory: /mnt
-          git clone --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
+        working-directory: ./
+          git clone --depth=1 --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
 
       - name: 更新并安装feeds
         run: |
-        working-directory: /mnt/immortalwrt
+        working-directory:
+          cd immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -58,8 +90,8 @@ jobs:
 
       - name: 编译固件
         id: compile
-        working-directory: /mnt/immortalwrt
         run: |
+          cd immortalwrt
           make defconfig
           make download -j$(nproc)
           make -j1
@@ -68,7 +100,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenWrt_bin
-          path: /mnt/immortalwrt/bin
+          path: immortalwrt/bin
 
 
       - name: Delete workflow runs

@@ -71,14 +71,15 @@ jobs:
           git clone --depth=1 --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
 
       - name: 更新并安装feeds
-        run: |
+        run:
+        working-directory: ./
           cd immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: 复制配置文件
         run: |
-          cp .config /mnt/immortalwrt/
+          cp .config immortalwrt/
 
       - name: 编译固件
         id: compile

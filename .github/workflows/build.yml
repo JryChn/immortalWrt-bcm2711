@@ -14,9 +14,23 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
       - name: 清理磁盘空间
         run: |
-         sudo rm -rf /usr/share/dotnet
          sudo rm -rf /opt/ghc
          sudo rm -rf "/usr/local/share/boost"
          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -29,22 +43,22 @@ jobs:
 
       - name: 克隆ImmortalWrt仓库
         run: |
-        working-directory: /dev/sda1
+        working-directory: /mnt
           git clone --single-branch --filter=blob:none -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt
 
       - name: 更新并安装feeds
         run: |
-        working-directory: /dev/sda1/immortalwrt
+        working-directory: /mnt/immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: 复制配置文件
         run: |
-          cp .config /dev/sda1/immortalwrt/
+          cp .config /mnt/immortalwrt/
 
       - name: 编译固件
         id: compile
-        working-directory: /dev/sda1/immortalwrt
+        working-directory: /mnt/immortalwrt
         run: |
           make defconfig
           make download -j$(nproc)
@@ -54,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenWrt_bin
-          path: immortalwrt/bin
+          path: /mnt/immortalwrt/bin
 
 
       - name: Delete workflow runs

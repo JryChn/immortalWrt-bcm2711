@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环境
 
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
-
       - name: 设置Ubuntu环境依赖
         run: |
           sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
@@ -63,7 +60,10 @@ jobs:
           echo "=============================================================================="
           df -hT
           echo "=============================================================================="
-
+      
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
       - name: 克隆ImmortalWrt仓库
         run: |
           git clone --depth=1 --single-branch --filter=blob:none -b openwrt-24.10 https://github.com/immortalwrt/immortalwrt

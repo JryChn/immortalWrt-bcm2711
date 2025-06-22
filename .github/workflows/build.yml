@@ -85,7 +85,7 @@ jobs:
           cd immortalwrt
           make defconfig
           make download -j$(nproc)
-          make -j1 V=s
+          make -j1 V=s IMAGE_SIZE=256m
 
       - name: 上传固件
         uses: actions/upload-artifact@master

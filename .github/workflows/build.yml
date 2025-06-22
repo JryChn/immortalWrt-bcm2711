@@ -85,7 +85,7 @@ jobs:
           cd immortalwrt
           make defconfig
           make download -j$(nproc)
-          make -j1
+          make -j1 V=s
 
       - name: 上传固件
         uses: actions/upload-artifact@master

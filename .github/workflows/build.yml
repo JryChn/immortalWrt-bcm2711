@@ -11,10 +11,6 @@ jobs:
     runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环境
 
     steps:
-      - name: 设置Ubuntu环境依赖
-        run: |
-          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-          
       - name: 释放空间开始
         run: |
           echo "Before freeing up disk space"
@@ -64,9 +60,29 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
         
+      - name: 设置Ubuntu环境依赖
+        run: |
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+
+      - name: Setup ccache
+        uses: actions/cache@v3
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
       - name: 克隆ImmortalWrt仓库
         run: |
           git clone --depth=1 --single-branch --filter=blob:none -b openwrt-24.10 https://github.com/immortalwrt/immortalwrt
+
+      - name: Cache downloads
+        uses: actions/cache@v3
+        with:
+          path: ./immortalwrt/dl
+          key: ${{ runner.os }}-dl-${{ hashFiles('.config') }}
+          restore-keys: |
+            ${{ runner.os }}-dl-
 
       - name: 更新并安装feeds
         working-directory: ./
@@ -74,6 +90,14 @@ jobs:
           cd immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
+      - name: Cache feeds
+        uses: actions/cache@v3
+        with:
+          path: ./immortalwrt/feeds
+          key: ${{ runner.os }}-feeds-${{ hashFiles('immortalwrt/feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-feeds-
 
       - name: 复制配置文件
         run: |
@@ -85,7 +109,7 @@ jobs:
           cd immortalwrt
           make defconfig
           make download -j$(nproc)
-          make -j1 V=s IMAGE_SIZE=256m
+          make -j$(nproc)
 
       - name: 上传固件
         uses: actions/upload-artifact@master

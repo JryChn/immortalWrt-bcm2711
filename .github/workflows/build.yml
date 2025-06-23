@@ -8,9 +8,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环境
+    runs-on: ubuntu-latest  # 使用最新版Ubuntu运行环
 
     steps:
+      - name: 设置Ubuntu环境依赖
+        run: |
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+ 
       - name: 释放空间开始
         run: |
           echo "Before freeing up disk space"
@@ -60,10 +64,6 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
         
-      - name: 设置Ubuntu环境依赖
-        run: |
-          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-
       - name: Setup ccache
         uses: actions/cache@v3
         with:

@@ -99,9 +99,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-feeds-
 
-      - name: 复制配置文件
-        run: |
-          cp .config immortalwrt/
+    #  - name: 复制配置文件
+    #    run: |
+    #    cp .config immortalwrt/
 
       - name: 编译固件
         id: compile
